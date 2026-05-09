@@ -1,96 +1,166 @@
 package com.example.fitloyalty.ui.screens
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FitnessCenter
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.fitloyalty.data.local.PointsDataStore
+import com.example.fitloyalty.viewmodel.PointsViewModel
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(pointsViewModel: PointsViewModel) {
 
-    val context = LocalContext.current
-    val pointsDataStore = remember { PointsDataStore(context) }
-
-    val points by pointsDataStore.pointsFlow.collectAsState(initial = 0)
-    val visits by pointsDataStore.visitsFlow.collectAsState(initial = emptyList())
-    val rewards by pointsDataStore.rewardsFlow.collectAsState(initial = emptyList())
+    val points by pointsViewModel.points.collectAsState()
+    val visits by pointsViewModel.visits.collectAsState()
+    val rewards by pointsViewModel.rewards.collectAsState()
 
     val level = getLevel(points)
+    val progress = getLevelProgress(points)
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF6F4EF))
-            .padding(20.dp),
+            .background(Color(0xFFF5F2EA))
+            .padding(horizontal = 20.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
         item {
-            Text(
-                text = "Profil",
-                fontSize = 34.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF111111)
-            )
-        }
-
-        item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(30.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(230.dp)
+                    .background(
+                        brush = Brush.linearGradient(
+                            listOf(
+                                Color(0xFF090909),
+                                Color(0xFF1D1D1D),
+                                Color(0xFF2C2412)
+                            )
+                        ),
+                        shape = RoundedCornerShape(34.dp)
+                    )
+                    .padding(24.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.SpaceBetween
                 ) {
-
-                    Box(
-                        modifier = Modifier
-                            .size(88.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF111111)),
-                        contentAlignment = Alignment.Center
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Top
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.FitnessCenter,
-                            contentDescription = "User",
-                            tint = Color(0xFFD4AF37),
-                            modifier = Modifier.size(42.dp)
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(72.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFFD4AF37)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "User",
+                                    tint = Color.Black,
+                                    modifier = Modifier.size(38.dp)
+                                )
+                            }
+
+                            Column(
+                                modifier = Modifier.padding(start = 16.dp)
+                            ) {
+                                Text(
+                                    text = "Użytkownik",
+                                    fontSize = 28.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+
+                                Text(
+                                    text = "FitLoyalty Premium",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color(0xFFD4AF37)
+                                )
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    Color(0x22D4AF37),
+                                    RoundedCornerShape(100.dp)
+                                )
+                                .padding(horizontal = 12.dp, vertical = 7.dp)
+                        ) {
+                            Text(
+                                text = level,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFD4AF37)
+                            )
+                        }
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Column {
+                        Text(
+                            text = "$points pkt",
+                            fontSize = 40.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
 
-                    Text(
-                        text = "Użytkownik",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF111111)
-                    )
+                        Spacer(modifier = Modifier.height(10.dp))
 
-                    Text(
-                        text = "Poziom: $level",
-                        fontSize = 18.sp,
-                        color = Color(0xFFD4AF37),
-                        fontWeight = FontWeight.SemiBold
-                    )
+                        LinearProgressIndicator(
+                            progress = { progress },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(10.dp),
+                            color = Color(0xFFD4AF37),
+                            trackColor = Color(0xFF4A4435)
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "Aktywny profil członkowski",
+                            fontSize = 14.sp,
+                            color = Color(0xFFCCCCCC)
+                        )
+                    }
                 }
             }
         }
@@ -100,57 +170,144 @@ fun ProfileScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                ProfileStatCard("Punkty", "$points", Modifier.weight(1f))
-                ProfileStatCard("Wizyty", "${visits.size}", Modifier.weight(1f))
-                ProfileStatCard("Nagrody", "${rewards.size}", Modifier.weight(1f))
+                ProfileStatCard(
+                    title = "Punkty",
+                    value = "$points",
+                    modifier = Modifier.weight(1f)
+                )
+
+                ProfileStatCard(
+                    title = "Wizyty",
+                    value = "${visits.size}",
+                    modifier = Modifier.weight(1f)
+                )
+
+                ProfileStatCard(
+                    title = "Nagrody",
+                    value = "${rewards.size}",
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
 
         item {
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(26.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize(),
+                shape = RoundedCornerShape(28.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(22.dp)
                 ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(46.dp)
+                                .background(
+                                    Color(0xFFF2E7C7),
+                                    CircleShape
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = "Kod członkowski",
+                                tint = Color(0xFFD4AF37),
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
 
+                        Column(
+                            modifier = Modifier.padding(start = 14.dp)
+                        ) {
+                            Text(
+                                text = "Kod członkowski",
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF111111)
+                            )
+
+                            Text(
+                                text = "Używany przy wejściu do klubu",
+                                fontSize = 14.sp,
+                                color = Color(0xFF777777)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(22.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(140.dp)
+                            .background(
+                                Color(0xFFF7F7F7),
+                                shape = RoundedCornerShape(20.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "▓ ▓▓ ▓ ▓▓\n▓▓ ▓ ▓ ▓\n▓ ▓▓▓▓ ▓\n▓▓ ▓ ▓▓ ▓\n▓ ▓▓ ▓ ▓▓",
+                            fontSize = 24.sp,
+                            color = Color.Black
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                Color(0xFFF2EEE3),
+                                RoundedCornerShape(16.dp)
+                            )
+                            .padding(14.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "FIT-${points + 1000}-${visits.size}",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF111111)
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize(),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Column(
+                    modifier = Modifier.padding(22.dp)
+                ) {
                     Text(
-                        text = "Kod członkowski",
+                        text = "Informacje o koncie",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF111111)
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    Box(
-                        modifier = Modifier
-                            .size(220.dp)
-                            .background(
-                                Color.White,
-                                shape = RoundedCornerShape(12.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "▓ ▓▓ ▓\n▓▓ ▓ ▓\n▓ ▓▓▓▓\n▓▓ ▓ ▓\n▓ ▓▓ ▓",
-                            fontSize = 26.sp,
-                            color = Color.Black
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(18.dp))
-
-                    Text(
-                        text = "FIT-${points + 1000}-${visits.size}",
-                        fontSize = 16.sp,
-                        color = Color(0xFF666666)
-                    )
+                    ProfileInfoRow("Typ konta", "Klient siłowni")
+                    ProfileInfoRow("Program", "FitLoyalty Premium")
+                    ProfileInfoRow("Architektura", "MVP + MVVM")
+                    ProfileInfoRow("Backend", "Firebase Firestore")
+                    ProfileInfoRow("Status", "Aktywny")
                 }
             }
         }
@@ -168,8 +325,10 @@ fun ProfileStatCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.height(90.dp),
-        shape = RoundedCornerShape(22.dp),
+        modifier = modifier
+            .height(98.dp)
+            .animateContentSize(),
+        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
@@ -178,8 +337,46 @@ fun ProfileStatCard(
                 .padding(14.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(title, fontSize = 13.sp, color = Color(0xFF777777))
-            Text(value, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111111))
+            Text(
+                text = title,
+                fontSize = 13.sp,
+                color = Color(0xFF777777)
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = value,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF111111)
+            )
         }
+    }
+}
+
+@Composable
+fun ProfileInfoRow(
+    label: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 7.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            fontSize = 15.sp,
+            color = Color(0xFF777777)
+        )
+
+        Text(
+            text = value,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color(0xFF111111)
+        )
     }
 }
